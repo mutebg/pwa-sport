@@ -26,11 +26,11 @@ async function fundHRensor() {
 }
 
 async function startNotificationsHR(characteristic) {
-  return await characteristic.startNotifications();
+  return characteristic.startNotifications();
 }
 
 async function stopNotificationsHR(characteristic) {
-  return await characteristic.stopNotifications();
+  return characteristic.stopNotifications();
 }
 
 const parseHeartRate = value => {
@@ -74,26 +74,42 @@ const btnStop = document.getElementById("stop");
 
 const HRBtnStart$ = Rx.Observable.fromEvent(btnFindHR, "click");
 const HRBtnStop$ = Rx.Observable.fromEvent(btnStop, "click");
-const HRMeasurement$ = Rx.Observable.create(async function cr(observer) {
-  const characteristic = await fundHRensor();
-  const heartRateMeasurement = await startNotificationsHR(characteristic);
-  const onChagne = event => {
-    const heartRateMeasurement = parseHeartRate(event.target.value);
-    observer.onNext(heartRateMeasurement);
-  };
+// const HRMeasurement$ = Rx.Observable.create(async function cr(observer) {
+//   const characteristic = await fundHRensor();
+//   const heartRateMeasurement = await startNotificationsHR(characteristic);
+//
+//   heartRateMeasurement.addEventListener("characteristicvaluechanged", onChagne);
+//
+//   return () => {
+//     stopNotificationsHR(characteristic);
+//     heartRateMeasurement.removeEventListener(
+//       "characteristicvaluechanged",
+//       onChagne
+//     );
+//   };
+// });
+//
+//
+//
+//
 
-  heartRateMeasurement.addEventListener("characteristicvaluechanged", onChagne);
+const HRMeasurement$ = Rx.Observable
+  .create(observer => {
+    const characteristic = fundHRensor();
+    characteristic.then(e => console.log(e)).catch((e = observer.error(e)));
+    return () => {
+      stopNotificationsHR(characteristic);
+    };
+  })
+  .flatMap(characteristic =>
+    Rx.Observable.fromPromise(startNotificationsHR(characteristic))
+  )
+  .flatMap(heartRateMeasurement =>
+    Rx.Observable.fromEvent(heartRateMeasurement, "characteristicvaluechanged")
+  )
+  .map(event => parseHeartRate(event.target.value));
 
-  return () => {
-    stopNotificationsHR(characteristic);
-    heartRateMeasurement.removeEventListener(
-      "characteristicvaluechanged",
-      onChagne
-    );
-  };
-});
-
-const HRvalues$ = HRBtnStart$.flatMap(() => HRMeasurement$.takeUntill(btnStop));
+const HRvalues$ = HRBtnStart$.flatMap(() => HRMeasurement$);
 
 HRvalues$.subscribe(data => console.log(data));
 // startWith
