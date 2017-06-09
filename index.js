@@ -1,37 +1,27 @@
 const DEVICE_SERVICES = ["heart_rate"];
 const DEVICE_CHAR = "heart_rate_measurement";
 
-const log = e => console.log(e);
-
-async function fundHRensor() {
-  try {
-    log("Requesting Bluetooth Device...");
-    const device = await navigator.bluetooth.requestDevice({
-      filters: [{ services: DEVICE_SERVICES }]
-    });
-
-    log("Connecting to GATT Server...");
-    const server = await device.gatt.connect();
-
-    log("Getting Heart Rate Service...");
-    const service = await server.getPrimaryService("heart_rate");
-
-    log("Getting Heart Rate heart_rate_measurement Characteristic...");
-    const characteristic = await service.getCharacteristic(DEVICE_CHAR);
-    return characteristic;
-  } catch (error) {
-    log("Argh! " + error);
-    return false;
-  }
+function findHRensor() {
+  // Requesting Bluetooth Device...
+  return (
+    navigator.bluetooth
+      .requestDevice({
+        filters: [{ services: DEVICE_SERVICES }]
+      })
+      // Connecting to GATT Server...
+      .then(device => device.gatt.connect())
+      // Getting Heart Rate Service...
+      .then(server => server.getPrimaryService("heart_rate"))
+      // Getting Heart Rate heart_rate_measurement Characteristic...
+      .then(service => service.getCharacteristic(DEVICE_CHAR))
+  );
 }
 
-async function startNotificationsHR(characteristic) {
-  return characteristic.startNotifications();
-}
+const startNotificationsHR = characteristic =>
+  characteristic.startNotifications();
 
-async function stopNotificationsHR(characteristic) {
-  return characteristic.stopNotifications();
-}
+const stopNotificationsHR = characteristic =>
+  characteristic.stopNotifications();
 
 const parseHeartRate = value => {
   // In Chrome 50+, a DataView is returned instead of an ArrayBuffer.
@@ -74,43 +64,25 @@ const btnStop = document.getElementById("stop");
 
 const HRBtnStart$ = Rx.Observable.fromEvent(btnFindHR, "click");
 const HRBtnStop$ = Rx.Observable.fromEvent(btnStop, "click");
-// const HRMeasurement$ = Rx.Observable.create(async function cr(observer) {
-//   const characteristic = await fundHRensor();
-//   const heartRateMeasurement = await startNotificationsHR(characteristic);
-//
-//   heartRateMeasurement.addEventListener("characteristicvaluechanged", onChagne);
-//
-//   return () => {
-//     stopNotificationsHR(characteristic);
-//     heartRateMeasurement.removeEventListener(
-//       "characteristicvaluechanged",
-//       onChagne
-//     );
-//   };
-// });
-//
-//
-//
-//
 
-const HRMeasurement$ = Rx.Observable
-  .create(observer => {
-    const characteristic = fundHRensor();
-    characteristic.then(e => console.log(e)).catch((e = observer.error(e)));
-    return () => {
-      stopNotificationsHR(characteristic);
-    };
-  })
+HRBtnStart$.flatMap(() => Rx.Observable.fromPromise(findHRensor()))
   .flatMap(characteristic =>
     Rx.Observable.fromPromise(startNotificationsHR(characteristic))
   )
-  .flatMap(heartRateMeasurement =>
-    Rx.Observable.fromEvent(heartRateMeasurement, "characteristicvaluechanged")
-  )
-  .map(event => parseHeartRate(event.target.value));
+  .flatMap(heartRateMeasurement => {
+    const hr$ = Rx.Observable
+      .fromEvent(heartRateMeasurement, "characteristicvaluechanged")
+      .takeUntil(HRBtnStop$);
 
-const HRvalues$ = HRBtnStart$.flatMap(() => HRMeasurement$);
+    // hr$.subscribe({
+    //   complete: () => stopNotificationsHR(heartRateMeasurement)
+    // });
 
-HRvalues$.subscribe(data => console.log(data));
-// startWith
-// takeUntill -> click End;
+    return hr$;
+  })
+  .map(event => parseHeartRate(event.target.value))
+  .subscribe(
+    next => console.log(next),
+    error => console.log(error),
+    complete => console.log("complete")
+  );
