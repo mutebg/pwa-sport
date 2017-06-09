@@ -63,26 +63,47 @@ const btnFindGPS = document.getElementById("find-gps");
 const btnStop = document.getElementById("stop");
 
 const HRBtnStart$ = Rx.Observable.fromEvent(btnFindHR, "click");
-const HRBtnStop$ = Rx.Observable.fromEvent(btnStop, "click");
+const GPSBtnStart$ = Rx.Observable.fromEvent(btnFindGPS, "click");
+const btnStop$ = Rx.Observable.fromEvent(btnStop, "click");
 
-HRBtnStart$.flatMap(() => Rx.Observable.fromPromise(findHRensor()))
-  .flatMap(characteristic =>
-    Rx.Observable.fromPromise(startNotificationsHR(characteristic))
-  )
-  .flatMap(heartRateMeasurement => {
-    const hr$ = Rx.Observable
-      .fromEvent(heartRateMeasurement, "characteristicvaluechanged")
-      .takeUntil(HRBtnStop$);
+HRBtnStart$.flatMap(() =>
+  Rx.Observable
+    .fromPromise(findHRensor())
+    .flatMap(characteristic =>
+      Rx.Observable.fromPromise(startNotificationsHR(characteristic))
+    )
+    .flatMap(heartRateMeasurement =>
+      Rx.Observable
+        .fromEvent(heartRateMeasurement, "characteristicvaluechanged")
+        .takeUntil(btnStop$)
+    )
+    .map(event => parseHeartRate(event.target.value))
+).subscribe(
+  next => console.log(next),
+  error => console.log(error),
+  complete => console.log("complete")
+);
 
-    // hr$.subscribe({
-    //   complete: () => stopNotificationsHR(heartRateMeasurement)
-    // });
+GPSBtnStart$.flatMap(() =>
+  Rx.Observable
+    .create(observer => {
+      const watchId = navigator.geolocation.watchPosition(
+        loc => observer.next(loc),
+        err => observer.error(err),
+        {
+          enableHighAccuracy: true,
+          maximumAge: 30000,
+          timeout: 27000
+        }
+      );
 
-    return hr$;
-  })
-  .map(event => parseHeartRate(event.target.value))
-  .subscribe(
-    next => console.log(next),
-    error => console.log(error),
-    complete => console.log("complete")
-  );
+      return () => navigator.geolocation.clearWatch(watchId);
+    })
+    .takeUntil(btnStop$)
+    .publish()
+    .refCount()
+).subscribe(
+  next => console.log(next),
+  error => console.log(error),
+  complete => console.log("complete")
+);
