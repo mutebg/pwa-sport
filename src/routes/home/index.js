@@ -16,6 +16,17 @@ import {
 } from '../../lib/heartrate';
 
 export default class Home extends Component {
+	state = {
+		hasGPS: false,
+		hasHR: false,
+		records: [],
+		lastRecord: null
+	};
+
+	timeInterval = null;
+	lastHR = null;
+	lastGPS = null;
+
 	componentDidMount() {
 		const HRBtnStart$ = Observable.fromEvent(this.btnFindHR, 'click');
 		const GPSBtnStart$ = Observable.fromEvent(this.btnFindGPS, 'click');
@@ -34,7 +45,10 @@ export default class Home extends Component {
 				)
 				.map(event => parseHeartRate(event.target.value))
 		).subscribe(
-			next => console.log(next),
+			next => {
+				this.lastHR = next.heartRate;
+				this.setState({ hasHR: true });
+			},
 			error => console.log(error),
 			complete => console.log('complete')
 		);
@@ -57,10 +71,34 @@ export default class Home extends Component {
 				.publish()
 				.refCount()
 		).subscribe(
-			next => console.log(next),
+			next => {
+				this.lastGPS = {
+					lat: next.coords.latitude,
+					lng: next.coords.longitude
+				};
+				this.setState({ hasGPS: true });
+			},
 			error => console.log(error),
 			complete => console.log('complete')
 		);
+
+		this.timeInterval = setInterval(() => {
+			if (this.lastHR && this.lastGPS) {
+				const lastRecord = {
+					heartRate: this.lastHR,
+					gps: this.lastGPS,
+					time: Date.now()
+				};
+				const records = this.state.records;
+				records.push(lastRecord);
+				this.setState({
+					lastRecord,
+					records
+				});
+			}
+
+			//console.log('grab latest values and save it in array');
+		}, 1000);
 	}
 
 	render() {
@@ -89,7 +127,7 @@ export default class Home extends Component {
 				>
 					Stop record
 				</button>
-
+				{JSON.stringify(this.state.lastRecord)}
 			</div>
 		);
 	}
