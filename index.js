@@ -70,16 +70,31 @@ const parseHeartRate = value => {
 
 const btnFindHR = document.getElementById("find-hr");
 const btnFindGPS = document.getElementById("find-gps");
+const btnStop = document.getElementById("stop");
 
-btnFindHR.addEventListener("click", async e => {
+const HRBtnStart$ = Rx.Observable.fromEvent(btnFindHR, "click");
+const HRBtnStop$ = Rx.Observable.fromEvent(btnStop, "click");
+const HRMeasurement$ = Rx.Observable.create(async function cr(observer) {
   const characteristic = await fundHRensor();
   const heartRateMeasurement = await startNotificationsHR(characteristic);
-  heartRateMeasurement.addEventListener("characteristicvaluechanged", event => {
+  const onChagne = event => {
     const heartRateMeasurement = parseHeartRate(event.target.value);
-    log(heartRateMeasurement);
-  });
-});
-btnFindGPS.addEventListener("click", e => console.log("GPS"));
+    observer.onNext(heartRateMeasurement);
+  };
 
+  heartRateMeasurement.addEventListener("characteristicvaluechanged", onChagne);
+
+  return () => {
+    stopNotificationsHR(characteristic);
+    heartRateMeasurement.removeEventListener(
+      "characteristicvaluechanged",
+      onChagne
+    );
+  };
+});
+
+const HRvalues$ = HRBtnStart$.flatMap(() => HRMeasurement$.takeUntill(btnStop));
+
+HRvalues$.subscribe(data => console.log(data));
 // startWith
 // takeUntill -> click End;
