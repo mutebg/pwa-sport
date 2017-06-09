@@ -1,23 +1,34 @@
 const DEVICE_SERVICES = ['heart_rate'];
 const DEVICE_CHAR = 'heart_rate_measurement';
 
-export const findHRensor = () =>
-	navigator.bluetooth
+export function fundHRensor() {
+	//log('Requesting Bluetooth Device...');
+	return navigator.bluetooth
 		.requestDevice({
 			filters: [{ services: DEVICE_SERVICES }]
 		})
-		// Connecting to GATT Server...
 		.then(device => device.gatt.connect())
-		// Getting Heart Rate Service...
 		.then(server => server.getPrimaryService('heart_rate'))
-		// Getting Heart Rate heart_rate_measurement Characteristic...
 		.then(service => service.getCharacteristic(DEVICE_CHAR));
 
-export const startNotificationsHR = characteristic =>
-	characteristic.startNotifications();
+	//log('Connecting to GATT Server...');
+	//const server = await device.gatt.connect();
 
-export const stopNotificationsHR = characteristic =>
-	characteristic.stopNotifications();
+	//log('Getting Heart Rate Service...');
+	//const service = await server.getPrimaryService('heart_rate');
+
+	//log('Getting Heart Rate heart_rate_measurement Characteristic...');
+	//const characteristic = await service.getCharacteristic(DEVICE_CHAR);
+	//return characteristic;
+}
+
+export function startNotificationsHR(characteristic) {
+	return characteristic.startNotifications();
+}
+
+export function stopNotificationsHR(characteristic) {
+	return characteristic.stopNotifications();
+}
 
 export const parseHeartRate = value => {
 	// In Chrome 50+, a DataView is returned instead of an ArrayBuffer.
