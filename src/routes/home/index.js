@@ -2,6 +2,7 @@ import { h, Component } from 'preact';
 import style from './style';
 import Btn from '../../components/btn';
 import Icon from '../../components/icon';
+import { route } from 'preact-router';
 import {
 	fundHRensor,
 	startNotificationsHR,
@@ -80,9 +81,8 @@ export default class Home extends Component {
 		}
 
 		if (this.state.records.length && this.state.isRecording) {
-			// TODO
-			// SAVE DATA TO LOCAL STORAGE
-			Records.add(this.store.records);
+			const id = Records.add(this.state.records);
+			route('details/' + id);
 		}
 
 		this.setState({
@@ -107,28 +107,22 @@ export default class Home extends Component {
 	componentDidMount() {
 		this.timeInterval = setInterval(() => {
 			if (this.state.isRecording && this.lastHR && this.lastGPS) {
-				if (
-					!this.state.lastRecord ||
-					this.state.lastRecord.heartRate !== this.lastHR ||
-					this.state.lastRecord.gps !== this.lastGPS
-				) {
-					const lastRecord = {
-						heartRate: this.lastHR,
-						gps: this.lastGPS,
-						time: Date.now()
-					};
-					const records = this.state.records;
-					records.push(lastRecord);
-					this.setState({
-						lastRecord,
-						records
-					});
-				}
+				const lastRecord = {
+					heartRate: this.lastHR,
+					gps: this.lastGPS,
+					time: Date.now()
+				};
+				const records = this.state.records;
+				records.push(lastRecord);
+				this.setState({
+					lastRecord,
+					records
+				});
 			}
 		}, 1000);
 	}
 
-	render(props, state) {
+	renderWaitingScreen(props, state) {
 		const btnFinHR = !state.isRecording
 			? (<Btn disabled={state.hasHR} onClick={this.onClickStartHR}>
 					<Icon
@@ -151,26 +145,77 @@ export default class Home extends Component {
 				</Btn>)
 			: null;
 
+		const className =
+			style.waiting +
+			' ' +
+			(!state.hasHR || !state.hasGPS ? style.waitingShow : '');
+
 		return (
-			<div class={style.home}>
-				<div class={style.btnWrapper}>
+			<div class={className}>
+				<div class={style.waitingLabel}>
+					Before start your run, you need to connect to Heart Rate sensor and
+					find GPS signal
+				</div>
+				<div class={style.waitingBtns}>
 					{btnFinHR}
 					{btnFindGPS}
 				</div>
+			</div>
+		);
+	}
 
-				{state.isRecording &&
-					<Btn large onClick={this.onClickStopRecording}>
-						Stop record
-					</Btn>}
+	renderReadyScreen(props, state) {
+		const className =
+			style.running +
+			' ' +
+			(state.hasHR && state.hasGPS ? style.runningShow : '');
 
-				{state.hasHR &&
-					state.hasGPS &&
-					!state.isRecording &&
-					<Btn large onClick={this.onClickStartRecording}>
-						Start record
-					</Btn>}
+		return (
+			<div class={className}>
+				<p class={style.hrlabel}><Icon name="heart" /> 120 Heartrate</p>
 
-				{JSON.stringify(this.state.lastRecord)}
+				<div class={style.runbtn}>
+					{state.isRecording &&
+						<Btn large onClick={this.onClickStopRecording}>
+							<Icon name="pause" size="80px" />
+							press to finish<br />your run
+						</Btn>}
+
+					{state.hasHR &&
+						state.hasGPS &&
+						!state.isRecording &&
+						<Btn large onClick={this.onClickStartRecording}>
+							press to start your run
+						</Btn>}
+				</div>
+
+				<div class={style.grid}>
+					<div>
+						Av. speed<br />
+						<span>8.92</span> km/h
+					</div>
+					<div>
+						Pace<br />
+						<span>8.92</span> km/h
+					</div>
+					<div>
+						Time<br />
+						<span>42:32</span> min
+					</div>
+					<div>
+						Distance<br />
+						<span>7:23</span> km
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	render(props, state) {
+		return (
+			<div class={style.home}>
+				{this.renderWaitingScreen(props, state)}
+				{this.renderReadyScreen(props, state)}
 			</div>
 		);
 	}

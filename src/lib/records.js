@@ -1,13 +1,23 @@
 class Records {
 	storeName = 'records';
 
-	add(item) {
+	add(records) {
 		const all = this.getAll();
+		console.log({ all });
 		// do some calculation / av speed / distance / etc
-		item.id = Date.now();
-		item.sync = false;
+		const item = {
+			id: Date.now(),
+			sync: false,
+			av_speed: 10,
+			duration: records.length,
+			distance: 7,
+			records
+		};
+		console.log(item);
 		all.push(item);
 		localStorage.setItem(this.storeName, JSON.stringify(all));
+
+		return item.id;
 	}
 
 	get(id) {
