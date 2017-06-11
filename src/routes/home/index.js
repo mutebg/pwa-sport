@@ -1,19 +1,22 @@
 import { h, Component } from 'preact';
 import style from './style';
-
+import Btn from '../../components/btn';
+import Icon from '../../components/icon';
 import {
 	fundHRensor,
 	startNotificationsHR,
 	stopNotificationsHR,
 	parseHeartRate
 } from '../../lib/heartrate';
+import Records from '../../lib/records';
 
 export default class Home extends Component {
 	state = {
 		hasGPS: false,
 		hasHR: false,
 		records: [],
-		lastRecord: null
+		lastRecord: null,
+		isRecording: false
 	};
 
 	timeInterval = null;
@@ -76,17 +79,34 @@ export default class Home extends Component {
 			clearInterval(this.timeInterval);
 		}
 
+		if (this.state.records.length && this.state.isRecording) {
+			// TODO
+			// SAVE DATA TO LOCAL STORAGE
+			Records.add(this.store.records);
+		}
+
 		this.setState({
 			hasHR: false,
-			hasGPS: false
+			hasGPS: false,
+			isRecording: false,
+			records: [],
+			lastRecord: null
 		});
-
-		// SAVE DATA TO LOCAL STORAGE
 	};
 
-	componentDidMount(props, state) {
+	onClickStartRecording = () => {
+		this.setState({
+			isRecording: true
+		});
+	};
+
+	comonentWillUnmount() {
+		this.onClickStopRecording();
+	}
+
+	componentDidMount() {
 		this.timeInterval = setInterval(() => {
-			if (this.lastHR && this.lastGPS) {
+			if (this.state.isRecording && this.lastHR && this.lastGPS) {
 				if (
 					!this.state.lastRecord ||
 					this.state.lastRecord.heartRate !== this.lastHR ||
@@ -109,22 +129,47 @@ export default class Home extends Component {
 	}
 
 	render(props, state) {
+		const btnFinHR = !state.isRecording
+			? (<Btn disabled={state.hasHR} onClick={this.onClickStartHR}>
+					<Icon
+						name="heart"
+						size={state.hasHR ? '42px' : '28px'}
+						pulse={state.hasHR}
+					/>
+					{!state.hasHR && 'find HR sensor'}
+				</Btn>)
+			: null;
+
+		const btnFindGPS = !state.isRecording
+			? (<Btn disabled={state.hasGPS} onClick={this.onClickStartGPS}>
+					<Icon
+						name="location"
+						size={state.hasGPS ? '42px' : '28px'}
+						pulse={state.hasGPS}
+					/>
+					{!state.hasGPS && 'find GPS signal'}
+				</Btn>)
+			: null;
+
 		return (
 			<div class={style.home}>
-				<h1>Home</h1>
-				<p>This is the Home component.</p>
-				<button disabled={state.hasHR} onClick={this.onClickStartHR}>
-					find HR sensor
-				</button>
-				<button disabled={state.hasGPS} onClick={this.onClickStartGPS}>
-					find GPS signal
-				</button>
-				<button
-					disabled={!state.hasGPS || !state.hasHR}
-					onClick={this.onClickStopRecording}
-				>
-					Stop record
-				</button>
+				<div class={style.btnWrapper}>
+					{btnFinHR}
+					{btnFindGPS}
+				</div>
+
+				{state.isRecording &&
+					<Btn large onClick={this.onClickStopRecording}>
+						Stop record
+					</Btn>}
+
+				{state.hasHR &&
+					state.hasGPS &&
+					!state.isRecording &&
+					<Btn large onClick={this.onClickStartRecording}>
+						Start record
+					</Btn>}
+
 				{JSON.stringify(this.state.lastRecord)}
 			</div>
 		);

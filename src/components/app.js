@@ -3,6 +3,7 @@ import { Router } from 'preact-router';
 
 import Header from './header';
 import Home from '../routes/home';
+import History from '../routes/history';
 // import Home from 'async!./home';
 // import Profile from 'async!./profile';
 
@@ -22,6 +23,7 @@ export default class App extends Component {
 				<Header />
 				<Router onChange={this.handleRoute}>
 					<Home path="/" />
+					<History path="/history" />
 				</Router>
 			</div>
 		);

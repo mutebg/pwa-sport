@@ -7,7 +7,11 @@ PWA Sport App which can track your heart rate and geo location  during exercise
 - Use GEO loation api to take current position
 - Sync with Strava
 - Design/Interface
-  - Home
+  - Home - default
+    - find gps
+    - find HR sensor
+    - button start after above two are found
+  - Home - running
     - Speed
     - Time
     - Heart rate
@@ -30,3 +34,5 @@ https://lh3.googleusercontent.com/-9cKoeyBFdte_8FGkPSvHd_6_FYVLjSQuHKfOecrE98J31
 
 - start screen after start workout
   https://lh3.googleusercontent.com/gjd_Z1Qzz1VCE5eTmE0AQz1JO-whVoLJUVmZrUBffmhy4JvgZXZfEXThREJjet8-v7g=h900-rw
+
+- https://dribbble.com/shots/3152567-Running-App-Concept/attachments/668803
