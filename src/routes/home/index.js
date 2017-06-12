@@ -10,6 +10,7 @@ import {
 	parseHeartRate
 } from '../../lib/heartrate';
 import Records from '../../lib/records';
+import { convertSecToMin } from '../../lib/run';
 
 export default class Home extends Component {
 	state = {
@@ -122,33 +123,27 @@ export default class Home extends Component {
 		}, 1000);
 	}
 
-	renderWaitingScreen(props, state) {
-		const btnFinHR = !state.isRecording
-			? (<Btn disabled={state.hasHR} onClick={this.onClickStartHR}>
-					<Icon
-						name="heart"
-						size={state.hasHR ? '42px' : '28px'}
-						pulse={state.hasHR}
-					/>
-					{!state.hasHR && 'find HR sensor'}
+	renderWaitingScreen(props, { isRecording, hasHR, hasGPS }) {
+		const btnFinHR = !isRecording
+			? (<Btn disabled={hasHR} onClick={this.onClickStartHR}>
+					<Icon name="heart" size={hasHR ? '42px' : '28px'} pulse={hasHR} />
+					{!hasHR && 'find HR sensor'}
 				</Btn>)
 			: null;
 
-		const btnFindGPS = !state.isRecording
-			? (<Btn disabled={state.hasGPS} onClick={this.onClickStartGPS}>
+		const btnFindGPS = !isRecording
+			? (<Btn disabled={hasGPS} onClick={this.onClickStartGPS}>
 					<Icon
 						name="location"
-						size={state.hasGPS ? '42px' : '28px'}
-						pulse={state.hasGPS}
+						size={hasGPS ? '42px' : '28px'}
+						pulse={hasGPS}
 					/>
-					{!state.hasGPS && 'find GPS signal'}
+					{!hasGPS && 'find GPS signal'}
 				</Btn>)
 			: null;
 
 		const className =
-			style.waiting +
-			' ' +
-			(!state.hasHR || !state.hasGPS ? style.waitingShow : '');
+			style.waiting + ' ' + (!hasHR || !hasGPS ? style.waitingShow : '');
 
 		return (
 			<div class={className}>
@@ -164,26 +159,32 @@ export default class Home extends Component {
 		);
 	}
 
-	renderReadyScreen(props, state) {
+	renderReadyScreen(
+		props,
+		{ hasHR, hasGPS, lastRecord, isRecording, records }
+	) {
 		const className =
-			style.running +
-			' ' +
-			(state.hasHR && state.hasGPS ? style.runningShow : '');
+			style.running + ' ' + (hasHR && hasGPS ? style.runningShow : '');
+
+		const heartRate = (lastRecord && lastRecord.heartRate) || '--';
+		const totalTime = convertSecToMin(records.length);
 
 		return (
 			<div class={className}>
-				<p class={style.hrlabel}><Icon name="heart" /> 120 Heartrate</p>
+				<p class={style.hrlabel}>
+					<Icon name="heart" /> {heartRate} Heartrate
+				</p>
 
 				<div class={style.runbtn}>
-					{state.isRecording &&
+					{isRecording &&
 						<Btn large onClick={this.onClickStopRecording}>
 							<Icon name="pause" size="80px" />
 							press to finish<br />your run
 						</Btn>}
 
-					{state.hasHR &&
-						state.hasGPS &&
-						!state.isRecording &&
+					{hasHR &&
+						hasGPS &&
+						!isRecording &&
 						<Btn large onClick={this.onClickStartRecording}>
 							press to start your run
 						</Btn>}
@@ -200,7 +201,7 @@ export default class Home extends Component {
 					</div>
 					<div>
 						Time<br />
-						<span>42:32</span> min
+						<span>{totalTime}</span> min
 					</div>
 					<div>
 						Distance<br />
