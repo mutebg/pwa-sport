@@ -9,7 +9,7 @@ export default class ListItem extends Component {
 		return (
 			<Link href={`/details/${id}`} class={style.item}>
 				<Icon class={style.icon} name="run" />
-				<span class={style.distance}>{distance.toFixed(3)} km</span> |
+				<span class={style.distance}>{distance.toFixed(2)} km</span> |
 				<span class={style.duration}>{convertSecToMin(duration)}</span> |
 				<span class={style.av_hr}>{av_hr} hr</span> |
 				<span class={style.av_speed}>{av_speed} km/h</span> |

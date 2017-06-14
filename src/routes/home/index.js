@@ -10,7 +10,12 @@ import {
 	parseHeartRate
 } from '../../lib/heartrate';
 import Records from '../../lib/records';
-import { convertSecToMin } from '../../lib/run';
+import {
+	convertSecToMin,
+	getDistanceFromLatLonInKm,
+	converKmToM,
+	convertKmPerHour
+} from '../../lib/run';
 
 export default class Home extends Component {
 	state = {
@@ -18,7 +23,8 @@ export default class Home extends Component {
 		hasHR: false,
 		records: [],
 		lastRecord: null,
-		isRecording: false
+		isRecording: false,
+		distance: 0
 	};
 
 	timeInterval = null;
@@ -114,10 +120,23 @@ export default class Home extends Component {
 					time: Date.now()
 				};
 				const records = this.state.records;
+
+				// calculate current distance
+				let distance = 0;
+				if (this.state.lastRecord) {
+					distance = getDistanceFromLatLonInKm(
+						this.state.lastRecord.gps.lat,
+						this.state.lastRecord.gps.lng,
+						lastRecord.gps.lat,
+						lastRecord.gps.lng
+					);
+				}
+
 				records.push(lastRecord);
 				this.setState({
 					lastRecord,
-					records
+					records,
+					distance: this.state.distance + distance
 				});
 			}
 		}, 1000);
@@ -161,13 +180,14 @@ export default class Home extends Component {
 
 	renderReadyScreen(
 		props,
-		{ hasHR, hasGPS, lastRecord, isRecording, records }
+		{ hasHR, hasGPS, lastRecord, isRecording, records, distance }
 	) {
 		const className =
 			style.running + ' ' + (hasHR && hasGPS ? style.runningShow : '');
 
 		const heartRate = (lastRecord && lastRecord.heartRate) || '--';
-		const totalTime = convertSecToMin(records.length);
+		const seconds = records.length;
+		const totalTime = convertSecToMin(seconds);
 
 		return (
 			<div class={className}>
@@ -186,14 +206,15 @@ export default class Home extends Component {
 						hasGPS &&
 						!isRecording &&
 						<Btn large onClick={this.onClickStartRecording}>
-							press to start your run
+							<Icon name="start" size="80px" />
+							press to start<br /> your run
 						</Btn>}
 				</div>
 
 				<div class={style.grid}>
 					<div>
 						Av. speed<br />
-						<span>8.92</span> km/h
+						<span>{convertKmPerHour(distance, seconds)}</span> km/h
 					</div>
 					<div>
 						Pace<br />
@@ -205,7 +226,7 @@ export default class Home extends Component {
 					</div>
 					<div>
 						Distance<br />
-						<span>7:23</span> km
+						<span>{distance.toFixed(2)}</span> km
 					</div>
 				</div>
 			</div>

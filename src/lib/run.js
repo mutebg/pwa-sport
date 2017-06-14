@@ -19,6 +19,8 @@ export const convertSecToMin = sec => {
 	return minutes + ':' + seconds;
 };
 
+export const converKmToM = km => (km * 1000).toFixed(0);
+
 export const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
 	let R = 6371; // Radius of the earth in km
 	let dLat = deg2rad(lat2 - lat1); // deg2rad below
