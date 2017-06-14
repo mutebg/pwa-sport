@@ -35,3 +35,36 @@ export const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
 };
 
 export const deg2rad = deg => deg * (Math.PI / 180);
+
+export const calcRunMetrics = records => {
+	const reducing = records.reduce(
+		(prev, next) => {
+			let totalDistance = prev.totalDistance;
+			if (prev.gps) {
+				totalDistance += getDistanceFromLatLonInKm(
+					prev.gps.lat,
+					prev.gps.lng,
+					next.gps.lat,
+					next.gps.lng
+				);
+			}
+
+			return {
+				gps: next.gps,
+				totalHR: prev.totalHR + next.heartRate,
+				totalDistance
+			};
+		},
+		{
+			gps: false,
+			totalHR: 0,
+			totalDistance: 0
+		}
+	);
+
+	return {
+		distance: reducing.totalDistance,
+		av_hr: reducing.totalHR / records.length,
+		av_speed: convertKmPerHour(reducing.totalDistance, records.length)
+	};
+};

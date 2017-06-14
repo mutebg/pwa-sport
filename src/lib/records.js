@@ -1,19 +1,22 @@
+import { calcRunMetrics } from './run';
+
 class Records {
 	storeName = 'records';
 
 	add(records) {
 		const all = this.getAll();
-		console.log({ all });
 		// do some calculation / av speed / distance / etc
+		const { distance, av_speed, av_hr } = calcRunMetrics(records);
+
 		const item = {
 			id: Date.now(),
 			sync: false,
-			av_speed: 10,
+			av_speed,
+			av_hr,
 			duration: records.length,
-			distance: 7,
+			distance,
 			records
 		};
-		console.log(item);
 		all.push(item);
 		localStorage.setItem(this.storeName, JSON.stringify(all));
 
