@@ -6,6 +6,8 @@ import time from '../../assets/time.svg';
 import timer from '../../assets/timer.svg';
 import start from '../../assets/start.svg';
 import pause from '../../assets/pause.svg';
+import date from '../../assets/date.svg';
+import fire from '../../assets/fire.svg';
 import style from './style.less';
 
 export default class Icon extends Component {
@@ -38,6 +40,14 @@ export default class Icon extends Component {
 
 			case 'pause':
 				svg = pause;
+				break;
+
+			case 'date':
+				svg = date;
+				break;
+
+			case 'fire':
+				svg = fire;
 				break;
 		}
 

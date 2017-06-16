@@ -1,7 +1,10 @@
 export const convertKmPerHour = (distanceInKM, timeInSeconds) => {
-	const timeInHours = timeInSeconds / 60 / 60;
-	const kmPerHour = distanceInKM / timeInHours;
-	return kmPerHour.toFixed(2);
+	if (distanceInKM > 0 && timeInSeconds > 0) {
+		const timeInHours = timeInSeconds / 60 / 60;
+		const kmPerHour = distanceInKM / timeInHours;
+		return kmPerHour.toFixed(2);
+	}
+	return 0.0;
 };
 
 export const convertSecToMin = sec => {

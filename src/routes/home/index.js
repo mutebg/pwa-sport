@@ -182,12 +182,14 @@ export default class Home extends Component {
 		props,
 		{ hasHR, hasGPS, lastRecord, isRecording, records, distance }
 	) {
+		console.log();
 		const className =
 			style.running + ' ' + (hasHR && hasGPS ? style.runningShow : '');
 
 		const heartRate = (lastRecord && lastRecord.heartRate) || '--';
 		const seconds = records.length;
 		const totalTime = convertSecToMin(seconds);
+		console.log({ seconds, distance });
 
 		return (
 			<div class={className}>
@@ -218,7 +220,7 @@ export default class Home extends Component {
 					</div>
 					<div>
 						Pace<br />
-						<span>8.92</span> km/h
+						<span>-.--</span> km/h
 					</div>
 					<div>
 						Time<br />
