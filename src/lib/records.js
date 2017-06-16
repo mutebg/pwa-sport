@@ -24,7 +24,7 @@ class Records {
 	}
 
 	get(id) {
-		const items = this.getAll().filter(item => item.id === id);
+		const items = this.getAll().filter(item => item.id === Number(id));
 		return items ? items[0] : null;
 	}
 

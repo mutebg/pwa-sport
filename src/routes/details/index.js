@@ -10,6 +10,7 @@ export default class Details extends Component {
 	}
 
 	render(props, { record }) {
+		console.log(props, this.state);
 		return (
 			<div class={style.details}>
 				<h1>Details</h1>
