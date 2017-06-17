@@ -1,5 +1,6 @@
 const functions = require('firebase-functions');
 const strava = require('strava-v3');
+const HTTPrequest = require('request');
 
 exports.stravaCallback = functions.https.onRequest((request, response) => {
 	//console.log(request);
@@ -27,28 +28,34 @@ exports.stravaLogin = functions.https.onRequest((request, response) => {
 });
 
 exports.stravaUpload = functions.https.onRequest((request, response) => {
-	const token = request.body.token;
+	const token =
+		request.body.token || 'db31f1f27ef1c14773e9d79d8519b6629c815e99';
 	const record = request.body.record;
+	const trackXML = generateTrack(record);
 
-	strava.uploads.post(
-		{
-			//access_token: token,
-			data_type: 'gpx',
-			//file: 'data/your_file.gpx',
-			file: generateTrack(record),
-			name: generateName(record),
-			statusCallback(err, payload) {
-				console.log(payload);
-				//do something with your payload
-			}
-		},
-		(err, payload, limits) => {
-			console.log({ err });
-			//do something with your payload, track rate limits
-			response.json(payload);
+	const tempName = Date.now() + '.gpx';
+
+	const url = 'https://www.strava.com/api/v3/uploads';
+	const options = {
+		url,
+		method: 'POST',
+		json: true,
+		headers: {
+			Authorization: 'Bearer ' + token
 		}
-	);
-	console.log('end of Func');
+	};
+
+	const req = HTTPrequest.post(options, (err, httpResponse, payload) => {
+		response.json(payload);
+	});
+
+	const form = req.form();
+	form.append('file', trackXML, {
+		filename: tempName,
+		contentType: ''
+	});
+	form.append('activity_type', 'run');
+	form.append('data_type', 'gpx');
 });
 
 const generateName = record =>
@@ -69,9 +76,8 @@ const generateTrack = record => {
 	`
 	);
 
-	return `
-<?xml version="1.0" encoding="UTF-8"?>
-<gpx creator="StravaGPX" version="1.1" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3">
+	return `<?xml version="1.0" encoding="UTF-8"?>
+<gpx creator="PWRunner" version="1.1" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3">
 	<metadata>
   	<time>${new Date(record[0].time).toISOString()}</time>
  	</metadata>
