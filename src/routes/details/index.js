@@ -1,6 +1,7 @@
 import { h, Component } from 'preact';
 import style from './style';
 import Records from '../../lib/records';
+import { convertSecToMin } from '../../lib/run';
 
 export default class Details extends Component {
 	componentWillMount() {
@@ -10,11 +11,18 @@ export default class Details extends Component {
 	}
 
 	render(props, { record }) {
-		console.log(props, this.state);
+		const { id, distance, duration, av_hr, av_speed, sync } = record;
+
 		return (
 			<div class={style.details}>
 				<h1>Details</h1>
-				{JSON.stringify(record)}
+				Date/Time: {new Date(id).toLocaleString()}<br />
+				Distance: <span>{distance.toFixed(2)}</span> km<br />
+				Duration: {convertSecToMin(duration)}<br />
+				Av. speed: {av_speed} km/h<br />
+				Energy: ---<br />
+				Av. heart rate: {av_hr} <br />
+
 			</div>
 		);
 	}

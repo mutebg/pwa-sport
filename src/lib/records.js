@@ -35,10 +35,6 @@ class Records {
 		}
 		return items;
 	}
-
-	sync() {
-		// TODO: sync with strava
-	}
 }
 
 export default new Records();
