@@ -5,8 +5,7 @@ import Header from './header';
 import Home from '../routes/home';
 import History from '../routes/history';
 import Details from '../routes/details';
-// import Home from 'async!./home';
-// import Profile from 'async!./profile';
+import Token from '../routes/token';
 
 export default class App extends Component {
 
@@ -26,6 +25,7 @@ export default class App extends Component {
 					<Home path="/" />
 					<History path="/history" />
 					<Details path="/details/:id" />
+					<Token path="/token/" />
 				</Router>
 			</div>
 		);

@@ -1,0 +1,88 @@
+@import '~style/helpers';
+
+.home {
+	padding: 56px 20px;
+	height: 100vh;
+	width: 100%;
+	overflow: hidden;
+}
+
+
+.waiting {
+	text-align: center;
+	padding-top: 2em;
+	opacity: 0;
+	pointer-events: none;
+	transform: translate3d(0, -100%, 0);
+	transition: 0.3s linear all;
+	height: 100%;
+
+	&.waitingShow {
+		opacity: 1;
+		pointer-events: all;
+		transform: translate3d(0, 0, 0);
+	}
+}
+
+.waitingLabel {
+	margin-bottom: 2em;
+}
+
+.waitingBtns {
+	display: flex;
+	align-content: space-between;
+	justify-content: space-around;
+}
+
+
+// RUNNING SCREEN
+.running {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-content: space-around;
+	min-height: 100%;
+	opacity: 0;
+	pointer-events: none;
+	transform: translate3d(0, 0, 0);
+	transition: 0.3s linear all;
+
+	&.runningShow {
+		opacity: 1;
+		pointer-events: all;
+		transform: translate3d(0, -100%, 0);
+	}
+}
+
+
+
+.hrlabel {
+	text-align: center;
+	flex: 1;
+	max-height: 40px;
+	margin-top: 1em;
+}
+
+.runbtn {
+	text-align: center;
+	flex: auto;
+	display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid {
+	flex: 1;
+	max-height: 120px;
+
+	div {
+		font-size: 12px;
+		width: 50%;
+		display: inline-block;
+		margin-top: 1em;
+	}
+
+	span {
+		font-size: 2em;
+	}
+}

@@ -16,23 +16,30 @@ export class Strava {
 	}
 
 	sync(id) {
-		const record = Records.get(id);
-		if (this.isLogged() && record) {
-			fetch('stravaLogin', {
-				method: 'POSt',
-				headers: {
-					Accept: 'application/json, text/plain, */*',
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					token: this.getToken(),
-					record: record.record
-				})
-			});
-		}
-		else {
-			throw Error('no logged');
-		}
+		return new Promise((resolve, reject) => {
+			const record = Records.get(id);
+			if (this.isLogged() && record) {
+				fetch(
+					'http://localhost:5002/pwa-sport-d9de2/us-central1/stravaUpload',
+					{
+						method: 'POSt',
+						headers: {
+							Accept: 'application/json, text/plain, */*',
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							token: this.getToken(),
+							record: record.record
+						})
+					}
+				)
+					.then(response => resolve(response))
+					.catch(error => reject(error));
+			}
+			else {
+				reject('No logged user');
+			}
+		});
 	}
 
 	syncAll() {
@@ -44,3 +51,5 @@ export class Strava {
 		});
 	}
 }
+
+export default new Strava();

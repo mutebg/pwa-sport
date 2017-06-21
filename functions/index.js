@@ -3,26 +3,24 @@ const strava = require('strava-v3');
 const HTTPrequest = require('request');
 
 exports.stravaCallback = functions.https.onRequest((request, response) => {
-	//console.log(request);
 	const code = request.query.code;
 	const state = request.query.state;
 	strava.oauth.getToken(code, (err, stravaResp) => {
 		if (!err) {
-			response.json({
-				code,
-				state,
-				token: stravaResp.access_token
-			});
+			response.redirect(
+				`http://localhost:8080/token?token=${stravaResp.access_token}&state=${state}`
+			);
 		}
 		else {
-			response.json(err);
+			response.redirect(`http://localhost:8080/`);
 		}
 	});
 });
 
 exports.stravaLogin = functions.https.onRequest((request, response) => {
 	const url = strava.oauth.getRequestAccessURL({
-		scope: 'view_private,write'
+		scope: 'view_private,write',
+		state: request.query.state
 	});
 	response.redirect(url);
 });

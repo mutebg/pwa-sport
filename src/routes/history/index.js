@@ -1,7 +1,7 @@
 import { h, Component } from 'preact';
 import style from './style';
 import Records from '../../lib/records';
-import ListItem from '../../components/lisitem';
+import ListItem from '../../components/listitem';
 
 export default class History extends Component {
 	state = {

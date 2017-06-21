@@ -2,27 +2,73 @@ import { h, Component } from 'preact';
 import style from './style';
 import Records from '../../lib/records';
 import { convertSecToMin } from '../../lib/run';
+import Strava from '../../lib/strava';
+import DetailsRow from '../../components/detailsrow';
 
 export default class Details extends Component {
+	syncStrava = () => {
+		this.setState({ isSyncing: true }, () => {
+			Strava.sync(this.props.id).then(() => {
+				this.setState({
+					record: Records.get(this.props.id),
+					isSyncing: false
+				});
+			});
+		});
+	};
+
 	componentWillMount() {
 		this.setState({
-			record: Records.get(this.props.id)
+			record: Records.get(this.props.id),
+			isSyncing: false
 		});
 	}
 
-	render(props, { record }) {
-		const { id, distance, duration, av_hr, av_speed, sync } = record;
+	renderStravaBanner({ id, sync }, { isSyncing }) {
+		if (!sync) {
+			if (!Strava.isLogged()) {
+				return (
+					<a
+						href={
+							'http://localhost:5002/pwa-sport-d9de2/us-central1/stravaLogin?state=' +
+							id
+						}
+					>
+						Login to sync with Strava
+					</a>
+				);
+			}
+			const label = isSyncing ? 'Syncing...' : 'Sync with Strava';
+			return (
+				<button onClick={this.syncStrava} disabled={isSyncing}>
+					{label}
+				</button>
+			);
+		}
+		return null;
+	}
+
+	render(props, state) {
+		const { id, distance, duration, av_hr, av_speed } = state.record;
+
+		const data = [
+			{
+				icon: 'date',
+				label: 'Date',
+				value: new Date(id).toLocaleString()
+			},
+			{ icon: 'run', label: 'Distance', value: distance.toFixed(2) + 'km' },
+			{ icon: 'timer', label: 'Duration', value: convertSecToMin(duration) },
+			{ icon: 'time', label: 'Av. speed', value: av_speed + 'km/h' },
+			{ icon: 'fire', label: 'Energy', value: '---' },
+			{ icon: 'heart', label: 'Av. heart rate', value: av_hr }
+		];
 
 		return (
 			<div class={style.details}>
-				<h1>Details</h1>
-				Date/Time: {new Date(id).toLocaleString()}<br />
-				Distance: <span>{distance.toFixed(2)}</span> km<br />
-				Duration: {convertSecToMin(duration)}<br />
-				Av. speed: {av_speed} km/h<br />
-				Energy: ---<br />
-				Av. heart rate: {av_hr} <br />
+				{data.map(item => <DetailsRow {...item} />)}
 
+				{this.renderStravaBanner(props, state)}
 			</div>
 		);
 	}

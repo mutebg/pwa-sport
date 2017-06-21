@@ -4,3 +4,4 @@ stats.json
 functions/data/strava_config
 functions/data/cert.json
 functions/firebase-debug.log
+firebase-debug.log
