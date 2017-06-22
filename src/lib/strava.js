@@ -22,18 +22,21 @@ export class Strava {
 				fetch(
 					'http://localhost:5002/pwa-sport-d9de2/us-central1/stravaUpload',
 					{
-						method: 'POSt',
+						method: 'POST',
 						headers: {
-							Accept: 'application/json, text/plain, */*',
+							Accept: 'application/json',
 							'Content-Type': 'application/json'
 						},
 						body: JSON.stringify({
 							token: this.getToken(),
-							record: record.record
+							record: record.records
 						})
 					}
 				)
-					.then(response => resolve(response))
+					.then(response => {
+						Records.update(id, { sync: true });
+						resolve(response);
+					})
 					.catch(error => reject(error));
 			}
 			else {

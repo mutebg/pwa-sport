@@ -9,6 +9,7 @@ export default class Details extends Component {
 	syncStrava = () => {
 		this.setState({ isSyncing: true }, () => {
 			Strava.sync(this.props.id).then(() => {
+				console.log(Records.get(this.props.id));
 				this.setState({
 					record: Records.get(this.props.id),
 					isSyncing: false
@@ -24,8 +25,8 @@ export default class Details extends Component {
 		});
 	}
 
-	renderStravaBanner({ id, sync }, { isSyncing }) {
-		if (!sync) {
+	renderStravaBanner({ id }, { isSyncing, record }) {
+		if (!record.sync) {
 			if (!Strava.isLogged()) {
 				return (
 					<a
@@ -45,7 +46,7 @@ export default class Details extends Component {
 				</button>
 			);
 		}
-		return null;
+		return <div>This run is synced with Strava</div>;
 	}
 
 	render(props, state) {

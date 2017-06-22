@@ -24,8 +24,20 @@ class Records {
 	}
 
 	get(id) {
-		const items = this.getAll().filter(item => item.id === Number(id));
+		id = Number(id);
+		const items = this.getAll().filter(item => item.id === id);
 		return items ? items[0] : null;
+	}
+
+	update(id, map) {
+		id = Number(id);
+		const items = this.getAll().map(item => {
+			if (item.id === id) {
+				return Object.assign({}, item, map);
+			}
+			return item;
+		});
+		localStorage.setItem(this.storeName, JSON.stringify(items));
 	}
 
 	getAll() {

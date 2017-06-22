@@ -2,12 +2,20 @@
 
 PWA Sport App which can track your heart rate and geo location  during exercise
 
-## TODO
+## DONE
 - Connect to BT device and take heart_rate
 - Use GEO loation api to take current position
 - Sync with Strava - use firebase functions and https://www.npmjs.com/package/strava-v3
+
+
+## TODO
+- Feature detection for BT and Geo ( show error message ) 
+- Put API urls in Configuration / Firebase Configuration
 - Voice on every KM
 - Place all svgs in one file
+
+
+## UI
 - Design/Interface
   - Home - default
     - find gps

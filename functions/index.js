@@ -1,6 +1,12 @@
 const functions = require('firebase-functions');
 const strava = require('strava-v3');
 const HTTPrequest = require('request');
+const cors = require('cors')({ origin: true });
+
+const config = {
+	frontURL: 'http://localhost:8080/',
+	defaultToken: 'db31f1f27ef1c14773e9d79d8519b6629c815e99'
+};
 
 exports.stravaCallback = functions.https.onRequest((request, response) => {
 	const code = request.query.code;
@@ -8,11 +14,11 @@ exports.stravaCallback = functions.https.onRequest((request, response) => {
 	strava.oauth.getToken(code, (err, stravaResp) => {
 		if (!err) {
 			response.redirect(
-				`http://localhost:8080/token?token=${stravaResp.access_token}&state=${state}`
+				`${config.frontURL}token?token=${stravaResp.access_token}&state=${state}`
 			);
 		}
 		else {
-			response.redirect(`http://localhost:8080/`);
+			response.redirect(`${config.frontURL}`);
 		}
 	});
 });
@@ -26,34 +32,36 @@ exports.stravaLogin = functions.https.onRequest((request, response) => {
 });
 
 exports.stravaUpload = functions.https.onRequest((request, response) => {
-	const token =
-		request.body.token || 'db31f1f27ef1c14773e9d79d8519b6629c815e99';
-	const record = request.body.record;
-	const trackXML = generateTrack(record);
+	cors(request, response, () => {
+		const token = request.body.token || config.defaultToken;
+		const record = request.body.record;
 
-	const tempName = Date.now() + '.gpx';
+		const trackXML = generateTrack(record);
 
-	const url = 'https://www.strava.com/api/v3/uploads';
-	const options = {
-		url,
-		method: 'POST',
-		json: true,
-		headers: {
-			Authorization: 'Bearer ' + token
-		}
-	};
+		const tempName = Date.now() + '.gpx';
 
-	const req = HTTPrequest.post(options, (err, httpResponse, payload) => {
-		response.json(payload);
+		const url = 'https://www.strava.com/api/v3/uploads';
+		const options = {
+			url,
+			method: 'POST',
+			json: true,
+			headers: {
+				Authorization: 'Bearer ' + token
+			}
+		};
+
+		const req = HTTPrequest.post(options, (err, httpResponse, payload) => {
+			response.send(payload);
+		});
+
+		const form = req.form();
+		form.append('file', trackXML, {
+			filename: tempName,
+			contentType: ''
+		});
+		form.append('activity_type', 'run');
+		form.append('data_type', 'gpx');
 	});
-
-	const form = req.form();
-	form.append('file', trackXML, {
-		filename: tempName,
-		contentType: ''
-	});
-	form.append('activity_type', 'run');
-	form.append('data_type', 'gpx');
 });
 
 const generateName = record =>
