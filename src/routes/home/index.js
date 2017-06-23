@@ -3,6 +3,7 @@ import style from './style';
 import Btn from '../../components/btn';
 import Icon from '../../components/icon';
 import { route } from 'preact-router';
+import { speak } from '../../lib/speach';
 import {
 	fundHRensor,
 	startNotificationsHR,
@@ -131,11 +132,18 @@ export default class Home extends Component {
 					);
 				}
 
+				const totalDistance = this.state.distance + distance;
+				// speak on ever new kilometer
+				if (parseInt(totalDistance, 10) !== parseInt(this.state.distance, 10)) {
+					speak(`Distance ${parseInt(totalDistance, 10)} km`);
+				}
+
+				//update state every second
 				records.push(lastRecord);
 				this.setState({
 					lastRecord,
 					records,
-					distance: this.state.distance + distance
+					distance: totalDistance
 				});
 			}
 		}, 1000);
@@ -181,14 +189,12 @@ export default class Home extends Component {
 		props,
 		{ hasHR, hasGPS, lastRecord, isRecording, records, distance }
 	) {
-		console.log();
 		const className =
 			style.running + ' ' + (hasHR && hasGPS ? style.runningShow : '');
 
 		const heartRate = (lastRecord && lastRecord.heartRate) || '--';
 		const seconds = records.length;
 		const totalTime = convertSecToMin(seconds);
-		console.log({ seconds, distance });
 
 		return (
 			<div class={className}>

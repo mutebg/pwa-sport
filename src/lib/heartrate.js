@@ -10,16 +10,6 @@ export function fundHRensor() {
 		.then(device => device.gatt.connect())
 		.then(server => server.getPrimaryService('heart_rate'))
 		.then(service => service.getCharacteristic(DEVICE_CHAR));
-
-	//log('Connecting to GATT Server...');
-	//const server = await device.gatt.connect();
-
-	//log('Getting Heart Rate Service...');
-	//const service = await server.getPrimaryService('heart_rate');
-
-	//log('Getting Heart Rate heart_rate_measurement Characteristic...');
-	//const characteristic = await service.getCharacteristic(DEVICE_CHAR);
-	//return characteristic;
 }
 
 export function startNotificationsHR(characteristic) {

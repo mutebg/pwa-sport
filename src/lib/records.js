@@ -17,7 +17,7 @@ class Records {
 			distance,
 			records
 		};
-		all.push(item);
+		all.unshift(item);
 		localStorage.setItem(this.storeName, JSON.stringify(all));
 
 		return item.id;
