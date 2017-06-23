@@ -1,4 +1,5 @@
 import Records from './records';
+import { API_URL } from '../config';
 
 export class Strava {
 	storeName = 'strava_token';
@@ -20,7 +21,7 @@ export class Strava {
 			const record = Records.get(id);
 			if (this.isLogged() && record) {
 				fetch(
-					'http://localhost:5002/pwa-sport-d9de2/us-central1/stravaUpload',
+					API_URL + 'stravaUpload',
 					{
 						method: 'POST',
 						headers: {

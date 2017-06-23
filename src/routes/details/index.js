@@ -4,12 +4,12 @@ import Records from '../../lib/records';
 import { convertSecToMin } from '../../lib/run';
 import Strava from '../../lib/strava';
 import DetailsRow from '../../components/detailsrow';
+import { API_URL } from '../../config';
 
 export default class Details extends Component {
 	syncStrava = () => {
 		this.setState({ isSyncing: true }, () => {
 			Strava.sync(this.props.id).then(() => {
-				console.log(Records.get(this.props.id));
 				this.setState({
 					record: Records.get(this.props.id),
 					isSyncing: false
@@ -29,12 +29,7 @@ export default class Details extends Component {
 		if (!record.sync) {
 			if (!Strava.isLogged()) {
 				return (
-					<a
-						href={
-							'http://localhost:5002/pwa-sport-d9de2/us-central1/stravaLogin?state=' +
-							id
-						}
-					>
+					<a href={`${API_URL}stravaLogin?state=${id}`}>
 						Login to sync with Strava
 					</a>
 				);

@@ -13,7 +13,6 @@ import Records from '../../lib/records';
 import {
 	convertSecToMin,
 	getDistanceFromLatLonInKm,
-	converKmToM,
 	convertKmPerHour
 } from '../../lib/run';
 

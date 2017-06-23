@@ -17,7 +17,7 @@ export default class History extends Component {
 	render(props, state) {
 		return (
 			<div class={style.history}>
-				{!state.records && <p>YOUR DON'T HAVE ANYTHIN YET</p>}
+				{!state.records && <p>YOUR DON'T HAVE ANY RUNS YET</p>}
 				{state.records.map(item => <ListItem {...item} />)}
 			</div>
 		);
