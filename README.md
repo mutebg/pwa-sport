@@ -12,7 +12,6 @@ PWA Sport App which can track your heart rate and geo location  during exercise
 
 ## TODO
 - Feature detection for BT and Geo ( show error message )
-- Put API urls in Configuration / Firebase Configuration
 - Place all svgs in one file
 
 

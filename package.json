@@ -28,5 +28,8 @@
     "preact": "^8.1.0",
     "preact-compat": "^3.16.0",
     "preact-router": "^2.5.2"
-  }
+  },
+  "browserslist": [
+    "last 1 versions"
+  ]
 }
