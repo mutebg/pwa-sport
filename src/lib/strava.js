@@ -1,4 +1,5 @@
 import Records from './records';
+import { reportError } from './reporter';
 import { API_URL } from '../config';
 
 export class Strava {
@@ -16,34 +17,29 @@ export class Strava {
 		localStorage.setItem(this.storeName, token);
 	}
 
-	sync(id) {
-		return new Promise((resolve, reject) => {
+	async sync(id) {
+		try {
 			const record = Records.get(id);
 			if (this.isLogged() && record) {
-				fetch(
-					API_URL + 'stravaUpload',
-					{
-						method: 'POST',
-						headers: {
-							Accept: 'application/json',
-							'Content-Type': 'application/json'
-						},
-						body: JSON.stringify({
-							token: this.getToken(),
-							record: record.records
-						})
-					}
-				)
-					.then(response => {
-						Records.update(id, { sync: true });
-						resolve(response);
+				const response = await fetch(API_URL + 'stravaUpload', {
+					method: 'POST',
+					headers: {
+						Accept: 'application/json',
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						token: this.getToken(),
+						record: record.records
 					})
-					.catch(error => reject(error));
+				});
+				Records.update(id, { sync: true });
+				return response;
 			}
-			else {
-				reject('No logged user');
-			}
-		});
+			throw 'No logged user';
+		}
+		catch (err) {
+			reportError(err);
+		}
 	}
 
 	syncAll() {

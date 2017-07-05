@@ -5,17 +5,22 @@ import { convertSecToMin } from '../../lib/run';
 import Strava from '../../lib/strava';
 import DetailsRow from '../../components/detailsrow';
 import { API_URL } from '../../config';
+import { reportError } from '../../lib/reporter';
 
 export default class Details extends Component {
-	syncStrava = () => {
-		this.setState({ isSyncing: true }, () => {
-			Strava.sync(this.props.id).then(() => {
-				this.setState({
-					record: Records.get(this.props.id),
-					isSyncing: false
-				});
+	syncStrava = async () => {
+		try {
+			await this.setState({ isSyncing: true });
+			await Strava.sync(this.props.id);
+			await this.setState({
+				record: Records.get(this.props.id),
+				isSyncing: false
 			});
-		});
+		}
+		catch (err) {
+			reportError(err);
+			await this.setState({ isSyncing: false });
+		}
 	};
 
 	loadMap = async () => {

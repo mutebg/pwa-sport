@@ -1,14 +1,19 @@
 const DEVICE_SERVICES = ['heart_rate'];
 const DEVICE_CHAR = 'heart_rate_measurement';
+import { reportError } from './reporter';
 
-export function fundHRensor() {
-	return navigator.bluetooth
-		.requestDevice({
+export async function fundHRensor() {
+	try {
+		const device = await navigator.bluetooth.requestDevice({
 			filters: [{ services: DEVICE_SERVICES }]
-		})
-		.then(device => device.gatt.connect())
-		.then(server => server.getPrimaryService('heart_rate'))
-		.then(service => service.getCharacteristic(DEVICE_CHAR));
+		});
+		const server = await device.gatt.connect();
+		const service = await server.getPrimaryService('heart_rate');
+		return await service.getCharacteristic(DEVICE_CHAR);
+	}
+	catch (error) {
+		reportError(error);
+	}
 }
 
 export function startNotificationsHR(characteristic) {

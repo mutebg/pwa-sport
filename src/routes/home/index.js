@@ -40,16 +40,14 @@ export default class Home extends Component {
 		this.lastHR = hr.heartRate;
 	};
 
-	onClickStartHR = () => {
-		fundHRensor().then(characteristic => {
-			startNotificationsHR(characteristic).then(heartRateMeasurement => {
-				this.heartRateMeasurement = heartRateMeasurement;
-				this.heartRateMeasurement.addEventListener(
-					'characteristicvaluechanged',
-					this.onHeartRateChange
-				);
-			});
-		});
+	onClickStartHR = async () => {
+		const characteristic = await fundHRensor();
+		const heartRateMeasurement = await startNotificationsHR(characteristic);
+		this.heartRateMeasurement = heartRateMeasurement;
+		this.heartRateMeasurement.addEventListener(
+			'characteristicvaluechanged',
+			this.onHeartRateChange
+		);
 	};
 
 	onClickStartGPS = () => {
