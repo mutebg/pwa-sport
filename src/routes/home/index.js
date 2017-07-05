@@ -16,6 +16,8 @@ import {
 	getDistanceFromLatLonInKm,
 	convertKmPerHour
 } from '../../lib/run';
+import { reportError } from '../../lib/reporter';
+import { homePage } from '../../lib/animate';
 
 export default class Home extends Component {
 	state = {
@@ -40,14 +42,16 @@ export default class Home extends Component {
 		this.lastHR = hr.heartRate;
 	};
 
-	onClickStartHR = async () => {
-		const characteristic = await fundHRensor();
-		const heartRateMeasurement = await startNotificationsHR(characteristic);
-		this.heartRateMeasurement = heartRateMeasurement;
-		this.heartRateMeasurement.addEventListener(
-			'characteristicvaluechanged',
-			this.onHeartRateChange
-		);
+	onClickStartHR = () => {
+		fundHRensor().then(characteristic => {
+			startNotificationsHR(characteristic).then(heartRateMeasurement => {
+				this.heartRateMeasurement = heartRateMeasurement;
+				this.heartRateMeasurement.addEventListener(
+					'characteristicvaluechanged',
+					this.onHeartRateChange
+				);
+			});
+		});
 	};
 
 	onClickStartGPS = () => {
@@ -111,11 +115,13 @@ export default class Home extends Component {
 	}
 
 	componentWillMount() {
-		if (!navigator.bluetooth) {
-			this.setState({
-				isCompatible: false
-			});
-		}
+		// @TODO
+		// Webpack can't prerender content, solve this issue later
+		// if (window !== 'undefined' && !window.navigator.bluetooth) {
+		// 	this.setState({
+		// 		isCompatible: false
+		// 	});
+		// }
 	}
 
 	componentDidMount() {
@@ -154,6 +160,8 @@ export default class Home extends Component {
 				});
 			}
 		}, 1000);
+
+		homePage();
 	}
 
 	renderWaitingScreen(props, { isRecording, hasHR, hasGPS }) {

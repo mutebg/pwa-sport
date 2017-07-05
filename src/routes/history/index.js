@@ -1,6 +1,7 @@
 import { h, Component } from 'preact';
 import style from './style';
 import Records from '../../lib/records';
+import { listAnimation } from '../../lib/animate';
 import ListItem from '../../components/listitem';
 
 export default class History extends Component {
@@ -12,6 +13,10 @@ export default class History extends Component {
 		this.setState({
 			records: Records.getAll()
 		});
+	}
+
+	componentDidMount() {
+		listAnimation();
 	}
 
 	render(props, state) {

@@ -13,7 +13,6 @@ PWA Sport App which can track your heart rate and geo location  during exercise
 ## TODO
 - Add animations / transitions
 - Permission api to handle rejected permissions
-- Convert to async/await
 - Configure webpack to use only latest ES version
 
 

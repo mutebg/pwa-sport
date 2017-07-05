@@ -17,11 +17,11 @@ export class Strava {
 		localStorage.setItem(this.storeName, token);
 	}
 
-	async sync(id) {
-		try {
+	sync(id) {
+		return new Promise((resolve, reject) => {
 			const record = Records.get(id);
 			if (this.isLogged() && record) {
-				const response = await fetch(API_URL + 'stravaUpload', {
+				fetch(API_URL + 'stravaUpload', {
 					method: 'POST',
 					headers: {
 						Accept: 'application/json',
@@ -31,15 +31,17 @@ export class Strava {
 						token: this.getToken(),
 						record: record.records
 					})
-				});
-				Records.update(id, { sync: true });
-				return response;
+				})
+					.then(response => {
+						Records.update(id, { sync: true });
+						resolve(response);
+					})
+					.catch(error => reject(error));
 			}
-			throw 'No logged user';
-		}
-		catch (err) {
-			reportError(err);
-		}
+			else {
+				reject('No logged user');
+			}
+		});
 	}
 
 	syncAll() {
