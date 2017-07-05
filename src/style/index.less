@@ -1,6 +1,7 @@
 @import 'helpers';
 
-html, body {
+html,
+body {
 	height: 100%;
 	width: 100%;
 	padding: 0;
@@ -23,4 +24,28 @@ button {
 
 #app {
 	height: 100%;
+}
+
+.alert {
+	background: @primary;
+	color: #fff;
+	padding: 1em;
+	margin-top: 100px;
+	text-align: center;
+}
+
+.inline-btn {
+	background: @primary;
+	color: #fff;
+	text-align: center;
+	border-radius: 3px;
+	display: block;
+	padding: 1em 0.5em;
+	margin: 0.2em 0;
+	font-size: 14px;
+	width: 100%;
+
+	&--strava {
+		background: #fc4c02;
+	}
 }

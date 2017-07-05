@@ -19,6 +19,7 @@ import {
 
 export default class Home extends Component {
 	state = {
+		isCompatible: true,
 		hasGPS: false,
 		hasHR: false,
 		records: [],
@@ -109,6 +110,14 @@ export default class Home extends Component {
 
 	comonentWillUnmount() {
 		this.onClickStopRecording();
+	}
+
+	componentWillMount() {
+		if (!navigator.bluetooth) {
+			this.setState({
+				isCompatible: false
+			});
+		}
 	}
 
 	componentDidMount() {
@@ -241,6 +250,12 @@ export default class Home extends Component {
 	}
 
 	render(props, state) {
+		if (!state.isCompatible) {
+			return (
+				<div class="alert">Your browser doesn't support Web Bluetooth API</div>
+			);
+		}
+
 		return (
 			<div class={style.home}>
 				{this.renderWaitingScreen(props, state)}

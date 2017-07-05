@@ -2,7 +2,6 @@ const DEVICE_SERVICES = ['heart_rate'];
 const DEVICE_CHAR = 'heart_rate_measurement';
 
 export function fundHRensor() {
-	//log('Requesting Bluetooth Device...');
 	return navigator.bluetooth
 		.requestDevice({
 			filters: [{ services: DEVICE_SERVICES }]

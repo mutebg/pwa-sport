@@ -18,6 +18,20 @@ export default class Details extends Component {
 		});
 	};
 
+	loadMap = async () => {
+		const Map = await import('../../components/map');
+		this.setState({
+			map: <Map.default points={this.state.record.records} />
+		});
+	};
+
+	constructor() {
+		super();
+		this.state = {
+			map: null
+		};
+	}
+
 	componentWillMount() {
 		this.setState({
 			record: Records.get(this.props.id),
@@ -29,19 +43,26 @@ export default class Details extends Component {
 		if (!record.sync) {
 			if (!Strava.isLogged()) {
 				return (
-					<a href={`${API_URL}stravaLogin?state=${id}`}>
+					<a
+						href={`${API_URL}stravaLogin?state=${id}`}
+						class="inline-btn inline-btn--strava"
+					>
 						Login to sync with Strava
 					</a>
 				);
 			}
 			const label = isSyncing ? 'Syncing...' : 'Sync with Strava';
 			return (
-				<button onClick={this.syncStrava} disabled={isSyncing}>
+				<button
+					class="inline-btn inline-btn--strava"
+					onClick={this.syncStrava}
+					disabled={isSyncing}
+				>
 					{label}
 				</button>
 			);
 		}
-		return <div>This run is synced with Strava</div>;
+		return null; // <div>This run is synced with Strava</div>;
 	}
 
 	render(props, state) {
@@ -65,6 +86,12 @@ export default class Details extends Component {
 				{data.map(item => <DetailsRow {...item} />)}
 
 				{this.renderStravaBanner(props, state)}
+
+				{state.map
+					? state.map
+					: <button class="inline-btn" onClick={this.loadMap}>
+							Show map
+						</button>}
 			</div>
 		);
 	}

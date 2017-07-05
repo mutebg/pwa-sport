@@ -7,14 +7,14 @@ PWA Sport App which can track your heart rate and geo location  during exercise
 - Use GEO location api to take current position
 - Sync with Strava - use firebase functions and https://www.npmjs.com/package/strava-v3
 - Voice on every KM
+- Google maps - with dynamic imports
 
 
 ## TODO
 - Add animations / transitions
-- Feature detection for iOS
 - Permission api to handle rejected permissions
-- Google maps - dynamic imports ?!
-
+- Convert to async/await
+- Configure webpack to use only latest ES version
 
 
 - List details
