@@ -21,7 +21,7 @@ script:
   - preact build
   - cd functions
   - npm install
-  - cd ..
+  - cd ..tr
 
 deploy:
   provider: firebase
