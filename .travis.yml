@@ -1,18 +1,12 @@
-#.travis.yml
-
 language: node_js
 node_js:
   - "8.1.3"
-
-cache:
-  directories:
-    - "node_modules"
 
 branches:
   only:
     - master
 
-install:
+before_script:
   - npm install -g firebase-tools
   - npm install -g preact-cli
   - npm install
@@ -23,10 +17,8 @@ script:
   - npm install
   - cd ..
 
-deploy:
-  provider: firebase
-  token:
-    secure: $FIREBASE_TOKEN
+after_success:
+  - firebase deploy --token $FIREBASE_TOKEN --non-interactive
 
 notifications:
   email:
